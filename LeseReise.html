@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeutschWelt – Interaktives Lernen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf7f2;
+    --warm-white: #fff9f0;
+    --sage: #7a9e7e;
+    --sage-light: #a8c5ac;
+    --sage-dark: #4d7a52;
+    --amber: #d4a853;
+    --amber-light: #f0c878;
+    --amber-dark: #a07830;
+    --rose: #c97b7b;
+    --rose-light: #e8a8a8;
+    --sky: #6b9ab8;
+    --sky-light: #9dc0d8;
+    --charcoal: #2c2c2c;
+    --muted: #7a7269;
+    --border: #e8e0d4;
+    --shadow: rgba(44,44,44,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── HOME SCREEN ── */
+  #home {
+    background: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 85% 20%, rgba(212,168,83,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 70% at 10% 80%, rgba(122,158,126,0.15) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(201,123,123,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .home-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .home-inner {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto;
+    padding: 60px 32px;
+    display: flex; flex-direction: column; align-items: center;
+    flex: 1;
+  }
+
+  .logo-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 100px; padding: 6px 16px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--sage-dark);
+    margin-bottom: 48px;
+    box-shadow: 0 2px 12px var(--shadow);
+    animation: fadeDown 0.6s ease both;
+  }
+  .logo-badge .dot {
+    width: 8px; height: 8px; background: var(--sage);
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:none} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes slideRight { from{opacity:0;transform:translateX(-24px)} to{opacity:1;transform:none} }
+
+  .home-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 9vw, 96px);
+    line-height: 1; font-weight: 700;
+    text-align: center;
+    color: var(--charcoal);
+    animation: fadeUp 0.7s 0.1s ease both;
+    letter-spacing: -2px;
+  }
+  .home-title .accent { color: var(--sage-dark); font-style: italic; }
+
+  .home-subtitle {
+    font-size: 17px; color: var(--muted); font-weight: 300;
+    text-align: center; max-width: 500px; line-height: 1.7;
+    margin-top: 20px;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .home-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin: 48px 0;
+    width: 100%; max-width: 720px;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+  .home-card {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 20px;
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 2px 16px var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .home-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(44,44,44,0.12); }
+  .home-card .icon { font-size: 28px; }
+  .home-card .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .home-card .card-val { font-size: 22px; font-weight: 600; color: var(--charcoal); }
+
+  .btn-start {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--charcoal); color: white;
+    border: none; border-radius: 100px;
+    padding: 18px 40px; font-size: 16px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 4px 24px rgba(44,44,44,0.25);
+    animation: fadeUp 0.7s 0.4s ease both;
+    text-decoration: none;
+  }
+  .btn-start:hover { background: var(--sage-dark); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(77,122,82,0.35); }
+  .btn-start .arrow { font-size: 20px; transition: transform 0.2s; }
+  .btn-start:hover .arrow { transform: translateX(4px); }
+
+  .home-tags {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin-top: 24px;
+    animation: fadeUp 0.7s 0.5s ease both;
+  }
+  .tag {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 100px; padding: 5px 14px;
+    font-size: 12px; color: var(--muted); font-weight: 500;
+  }
+
+  /* ── STORY SCREEN ── */
+  #story { background: var(--warm-white); }
+
+  .story-header {
+    background: white; border-bottom: 1.5px solid var(--border);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .story-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--sage-dark); }
+  .progress-bar-wrap {
+    flex: 1; max-width: 300px; margin: 0 24px;
+    background: var(--border); border-radius: 100px; height: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--sage), var(--amber));
+    border-radius: 100px; transition: width 0.5s ease;
+  }
+  .progress-label { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+
+  .story-body {
+    max-width: 780px; margin: 0 auto;
+    padding: 48px 32px;
+    flex: 1;
+  }
+
+  .scene-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--sage-light); color: var(--sage-dark);
+    border-radius: 100px; padding: 4px 12px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .story-illustration {
+    width: 100%; height: 240px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 80px; margin-bottom: 32px;
+    position: relative; overflow: hidden;
+    animation: fadeIn 0.6s ease;
+  }
+  .story-illustration img {
+    width: 100%; height: 100%; object-fit: cover;
+    border-radius: 20px;
+    transition: transform 0.4s ease;
+  }
+  .story-illustration:hover img { transform: scale(1.03); }
+  .story-illustration .img-overlay {
+    position: absolute; inset: 0; border-radius: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .story-illustration .img-caption {
+    position: absolute; bottom: 12px; left: 16px;
+    color: white; font-size: 12px; font-weight: 500;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+
+  .story-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 700;
+    color: var(--charcoal); margin-bottom: 8px;
+    animation: slideRight 0.5s 0.1s ease both;
+  }
+
+  .story-location {
+    font-size: 13px; color: var(--muted); font-weight: 500;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 4px;
+    animation: slideRight 0.5s 0.15s ease both;
+  }
+
+  .story-text {
+    font-size: 18px; line-height: 1.85; color: var(--charcoal);
+    background: white; border-radius: 16px;
+    padding: 28px 32px; border: 1.5px solid var(--border);
+    box-shadow: 0 2px 16px var(--shadow);
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+  .story-text .highlight {
+    background: rgba(212,168,83,0.2); color: var(--amber-dark);
+    border-radius: 4px; padding: 1px 4px; font-weight: 600;
+    cursor: help; border-bottom: 2px solid var(--amber);
+    position: relative;
+  }
+  .story-text .highlight:hover::after {
+    content: attr(data-trans);
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: var(--charcoal); color: white;
+    padding: 4px 10px; border-radius: 8px; font-size: 13px;
+    white-space: nowrap; pointer-events: none;
+    animation: fadeIn 0.2s ease;
+    z-index: 20;
+  }
+
+  .vocab-hint {
+    background: rgba(122,158,126,0.1); border: 1.5px solid var(--sage-light);
+    border-radius: 12px; padding: 14px 18px; margin-top: 20px;
+    font-size: 14px; color: var(--sage-dark);
+    animation: fadeUp 0.5s 0.3s ease both;
+  }
+  .vocab-hint strong { font-weight: 600; }
+
+  .story-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 32px;
+    animation: fadeUp 0.5s 0.35s ease both;
+  }
+  .btn-nav {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--border); background: white;
+    color: var(--charcoal); border-radius: 100px;
+    padding: 12px 24px; font-size: 14px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-nav:hover { background: var(--charcoal); color: white; border-color: var(--charcoal); }
+  .btn-nav.primary {
+    background: var(--charcoal); color: white; border-color: var(--charcoal);
+  }
+  .btn-nav.primary:hover { background: var(--sage-dark); border-color: var(--sage-dark); }
+  .btn-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-nav.primary:disabled { background: var(--muted); border-color: var(--muted); }
+
+  /* ── QUIZ SCREEN ── */
+  #quiz { background: var(--warm-white); }
+
+  .quiz-header {
+    background: white; border-bottom: 1.5px solid var(--border);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .quiz-body {
+    max-width: 680px; margin: 0 auto;
+    padding: 48px 32px; flex: 1;
+  }
+
+  .quiz-type-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--amber-light); color: var(--amber-dark);
+    border-radius: 100px; padding: 4px 12px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  .quiz-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; line-height: 1.35; font-weight: 700;
+    color: var(--charcoal); margin-bottom: 28px;
+    animation: slideRight 0.4s ease both;
+  }
+
+  .quiz-context {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;
+    font-size: 15px; color: var(--muted); line-height: 1.65; font-style: italic;
+    animation: fadeIn 0.4s 0.1s ease both;
+  }
+
+  /* Multiple choice */
+  .options-grid { display: flex; flex-direction: column; gap: 12px; animation: fadeUp 0.4s 0.15s ease both; }
+  .option-btn {
+    background: white; border: 2px solid var(--border);
+    border-radius: 14px; padding: 16px 20px;
+    font-size: 16px; font-family: 'DM Sans', sans-serif;
+    text-align: left; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; gap: 14px;
+    color: var(--charcoal);
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--sky); background: rgba(107,154,184,0.06); transform: translateX(4px); }
+  .option-btn .opt-letter {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--cream); border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .option-btn.correct { border-color: var(--sage); background: rgba(122,158,126,0.1); }
+  .option-btn.correct .opt-letter { background: var(--sage); border-color: var(--sage); color: white; }
+  .option-btn.wrong { border-color: var(--rose); background: rgba(201,123,123,0.1); }
+  .option-btn.wrong .opt-letter { background: var(--rose); border-color: var(--rose); color: white; }
+  .option-btn:disabled { cursor: not-allowed; }
+
+  /* True / False */
+  .tf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; animation: fadeUp 0.4s 0.15s ease both; }
+  .tf-btn {
+    background: white; border: 2px solid var(--border);
+    border-radius: 16px; padding: 28px 16px;
+    font-size: 18px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .tf-btn .tf-icon { font-size: 36px; }
+  .tf-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 8px 24px var(--shadow); }
+  .tf-btn.correct { border-color: var(--sage); background: rgba(122,158,126,0.12); color: var(--sage-dark); }
+  .tf-btn.wrong { border-color: var(--rose); background: rgba(201,123,123,0.12); color: var(--rose); }
+  .tf-btn:disabled { cursor: not-allowed; }
+
+  /* Matching */
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; animation: fadeUp 0.4s 0.15s ease both; }
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+  .match-col-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+  .match-item {
+    background: white; border: 2px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    font-size: 15px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+    text-align: center; font-weight: 500;
+    position: relative;
+  }
+  .match-item.selected { border-color: var(--sky); background: rgba(107,154,184,0.1); }
+  .match-item.matched-correct { border-color: var(--sage); background: rgba(122,158,126,0.1); color: var(--sage-dark); cursor: default; }
+  .match-item.matched-wrong { border-color: var(--rose); background: rgba(201,123,123,0.1); color: var(--rose); }
+  .match-item:hover:not(:disabled):not(.matched-correct) { transform: scale(1.02); box-shadow: 0 4px 12px var(--shadow); }
+
+  /* Feedback */
+  .feedback-box {
+    border-radius: 14px; padding: 16px 20px; margin-top: 20px;
+    font-size: 15px; line-height: 1.6; font-weight: 500;
+    display: none; animation: fadeUp 0.3s ease;
+  }
+  .feedback-box.show { display: flex; align-items: flex-start; gap: 12px; }
+  .feedback-box.correct-fb { background: rgba(122,158,126,0.12); border: 1.5px solid var(--sage); color: var(--sage-dark); }
+  .feedback-box.wrong-fb { background: rgba(201,123,123,0.12); border: 1.5px solid var(--rose); color: var(--rose); }
+  .feedback-box .fb-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+
+  .quiz-nav {
+    display: flex; justify-content: flex-end;
+    margin-top: 28px; animation: fadeUp 0.4s 0.2s ease both;
+  }
+
+  /* Score counter */
+  .score-pill {
+    background: var(--cream); border: 1.5px solid var(--border);
+    border-radius: 100px; padding: 6px 14px;
+    font-size: 13px; font-weight: 600; color: var(--charcoal);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── RESULT SCREEN ── */
+  #result {
+    background: var(--warm-white);
+    align-items: center; justify-content: center;
+    text-align: center;
+  }
+
+  .result-inner {
+    max-width: 560px; padding: 60px 32px;
+    animation: fadeUp 0.6s ease;
+  }
+
+  .result-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto 32px;
+    border: 4px solid transparent;
+    position: relative;
+    font-family: 'Playfair Display', serif;
+  }
+  .result-circle::before {
+    content: ''; position: absolute; inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(var(--sage) var(--pct), var(--border) 0);
+    z-index: -1;
+  }
+  .result-circle::after {
+    content: ''; position: absolute; inset: 8px;
+    border-radius: 50%; background: var(--warm-white);
+    z-index: -1;
+  }
+  .result-score-num { font-size: 42px; font-weight: 700; color: var(--charcoal); line-height: 1; }
+  .result-score-den { font-size: 16px; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+
+  .result-grade {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; font-weight: 700; color: var(--charcoal);
+    margin-bottom: 12px;
+  }
+  .result-grade .italic { font-style: italic; color: var(--sage-dark); }
+
+  .result-msg { font-size: 17px; color: var(--muted); line-height: 1.65; margin-bottom: 36px; }
+
+  .result-breakdown {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 24px; margin-bottom: 32px;
+    text-align: left;
+  }
+  .breakdown-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; }
+  .breakdown-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-label { color: var(--charcoal); font-weight: 500; }
+  .breakdown-val { font-family: 'DM Mono', monospace; font-weight: 600; }
+  .breakdown-val.good { color: var(--sage-dark); }
+  .breakdown-val.bad { color: var(--rose); }
+
+  .result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-result {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-radius: 100px; padding: 14px 28px;
+    font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s; border: 2px solid;
+  }
+  .btn-result.primary { background: var(--charcoal); color: white; border-color: var(--charcoal); }
+  .btn-result.primary:hover { background: var(--sage-dark); border-color: var(--sage-dark); }
+  .btn-result.secondary { background: white; color: var(--charcoal); border-color: var(--border); }
+  .btn-result.secondary:hover { border-color: var(--charcoal); }
+
+  /* ── CONFETTI ── */
+  .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+  .confetto {
+    position: absolute; top: -10px;
+    width: 10px; height: 10px; border-radius: 2px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .home-cards { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .home-card { padding: 14px; }
+    .home-card .card-val { font-size: 18px; }
+    .story-header { padding: 12px 16px; }
+    .progress-bar-wrap { max-width: 140px; }
+    .story-body, .quiz-body { padding: 28px 16px; }
+    .story-text { padding: 20px 18px; font-size: 16px; }
+    .quiz-question { font-size: 22px; }
+    .match-grid { grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+    .tf-grid { gap: 10px; }
+    .home-inner { padding: 40px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME ═══ -->
+<section id="home" class="screen active">
+  <div class="home-bg"></div>
+  <div class="home-grid"></div>
+  <div class="home-inner">
+    <div class="logo-badge"><span class="dot"></span> DeutschWelt · Level A2</div>
+
+    <h1 class="home-title">Lern<span class="accent">Welt</span></h1>
+    <p class="home-subtitle">Lerne Deutsch durch interaktive Geschichten über das Studentenleben — Schritt für Schritt, Szene für Szene.</p>
+
+    <div class="home-cards">
+      <div class="home-card">
+        <div class="icon">📖</div>
+        <div class="card-label">Scenes</div>
+        <div class="card-val">5</div>
+      </div>
+      <div class="home-card">
+        <div class="icon">🧩</div>
+        <div class="card-label">Soal Kuis</div>
+        <div class="card-val">20</div>
+      </div>
+      <div class="home-card">
+        <div class="icon">⏱</div>
+        <div class="card-label">Menit</div>
+        <div class="card-val">~20</div>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startStory()">
+      Geschichte beginnen <span class="arrow">→</span>
+    </button>
+
+    <div class="home-tags">
+      <span class="tag">🏫 Uni-Leben</span>
+      <span class="tag">🤝 Freundschaft</span>
+      <span class="tag">☕ Alltag</span>
+      <span class="tag">🎉 Festival</span>
+      <span class="tag">🗺 Stadtreise</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STORY ═══ -->
+<section id="story" class="screen">
+  <header class="story-header">
+    <div class="story-logo">DeutschWelt</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progBar" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progLabel">Szene 1 / 5</div>
+  </header>
+  <div class="story-body" id="storyBody"></div>
+</section>
+
+<!-- ═══ QUIZ ═══ -->
+<section id="quiz" class="screen">
+  <header class="quiz-header">
+    <div class="story-logo">DeutschWelt</div>
+    <div class="score-pill" id="scorePill">⭐ 0 / 0</div>
+  </header>
+  <div class="quiz-body" id="quizBody"></div>
+</section>
+
+<!-- ═══ RESULT ═══ -->
+<section id="result" class="screen">
+  <div class="result-inner" id="resultInner"></div>
+</section>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+
+const story = [
+  // SCENE 1
+  {
+    type: 'scene',
+    tag: 'Szene 1 · Ankunft',
+    title: 'Ein neuer Anfang',
+    location: '📍 Bahnhof Heidelberg',
+    emoji: '🚉',
+    bg: 'linear-gradient(135deg, #d4e8d4 0%, #a8c5ac 100%)',
+    text: `Es ist Montag, der erste September. <span class="highlight" data-trans="Lena (22 Tahun)">Lena</span> steht am Bahnhof in Heidelberg. Sie kommt aus München und beginnt heute ihr <span class="highlight" data-trans="studi/kuliah">Studium</span> an der Universität.
+
+<br><br>Sie hat einen großen <span class="highlight" data-trans="koper">Koffer</span> und einen Rucksack. Lena schaut auf ihr Handy – sie sucht die Adresse von ihrem <span class="highlight" data-trans="asrama">Studentenwohnheim</span>.
+
+<br><br>„Entschuldigung", sagt Lena zu einem jungen Mann. „Wo ist die Universität, bitte?"
+
+<br><br>Der junge Mann lächelt. „Ich heiße <span class="highlight" data-trans="Max (23 Tahun)">Max</span>. Ich studiere auch dort! Komm, ich zeige dir den Weg."`,
+    vocab: '💡 <strong>Wortschatz:</strong> der Bahnhof = stasiun · das Studium = studi · der Koffer = koper · das Wohnheim = asrama · zeigen = menunjukkan'
+  },
+  // SCENE 2
+  {
+    type: 'scene',
+    tag: 'Szene 2 · Uni-Campus',
+    title: 'Der erste Tag',
+    location: '📍 Uni-Campus, Mensa',
+    emoji: '🏫',
+    bg: 'linear-gradient(135deg, #fce4b8 0%, #f0c878 100%)',
+    text: `Max und Lena gehen zusammen zur Universität. Der Campus ist sehr <span class="highlight" data-trans="indah">schön</span> – es gibt alte Gebäude und viele <span class="highlight" data-trans="pohon">Bäume</span>.
+
+<br><br>„Bist du <span class="highlight" data-trans="lapar">hungrig</span>?" fragt Max. „Wir können in die <span class="highlight" data-trans="kantin kampus">Mensa</span> gehen. Das Essen ist billig und gut."
+
+<br><br>„Ja, gerne! Ich habe seit heute Morgen nichts gegessen", antwortet Lena.
+
+<br><br>In der Mensa gibt es Suppe, Nudeln und Salat. Lena nimmt die <span class="highlight" data-trans="sup">Suppe</span> und ein Glas Wasser. Max isst <span class="highlight" data-trans="pasta">Nudeln</span> mit Tomatensauce.
+
+<br><br>„Was studierst du?", fragt Lena. „Ich studiere <span class="highlight" data-trans="ilmu komputer">Informatik</span>", sagt Max, „und du?" „Ich studiere <span class="highlight" data-trans="bahasa Jerman & sastra">Germanistik</span>!", sagt Lena lachend.`,
+    vocab: '💡 <strong>Wortschatz:</strong> hungrig = lapar · die Mensa = kantin kampus · billig = murah · die Nudeln = pasta · lachen = tertawa'
+  },
+  // QUIZ 1 (after scene 2)
+  {
+    type: 'quiz',
+    quizIndex: 0
+  },
+  // SCENE 3
+  {
+    type: 'scene',
+    tag: 'Szene 3 · Wohnheim',
+    title: 'Das Zimmer',
+    location: '📍 Studentenwohnheim Zimmer 14',
+    emoji: '🛏',
+    bg: 'linear-gradient(135deg, #d4e0f0 0%, #9dc0d8 100%)',
+    text: `Am Nachmittag geht Lena in ihr Zimmer im Wohnheim. Das Zimmer ist <span class="highlight" data-trans="kecil tapi nyaman">klein, aber gemütlich</span>. Es gibt ein Bett, einen Schreibtisch, einen Stuhl und einen Schrank.
+
+<br><br>Lena <span class="highlight" data-trans="membereskan barang">packt ihre Sachen aus</span>. Sie hängt ein Foto von ihrer Familie an die Wand.
+
+<br><br>Plötzlich klopft es an der Tür. Es ist ihre Nachbarin – ein Mädchen mit langen schwarzen Haaren.
+
+<br><br>„Hallo! Ich bin <span class="highlight" data-trans="Sara (21 Tahun)">Sara</span>. Ich wohne in Zimmer 15. Willkommen im Wohnheim!", sagt sie freundlich.
+
+<br><br>„Danke! Ich bin Lena. Schön, dich kennenzulernen!", antwortet Lena.
+
+<br><br>Sara fragt: „Hast du Lust, heute Abend mit uns <span class="highlight" data-trans="memasak bersama">zusammen zu kochen</span>? Wir sind eine kleine Gruppe."`,
+    vocab: '💡 <strong>Wortschatz:</strong> gemütlich = nyaman · der Schreibtisch = meja belajar · der Schrank = lemari · klopfen = mengetuk · Lust haben = ingin/mau'
+  },
+  // SCENE 4
+  {
+    type: 'scene',
+    tag: 'Szene 4 · Abend',
+    title: 'Kochen im Gemeinschaftsraum',
+    location: '📍 Küche, Wohnheim EG',
+    emoji: '🍳',
+    bg: 'linear-gradient(135deg, #f0d4d4 0%, #e8a8a8 100%)',
+    text: `Abends versammeln sich alle in der <span class="highlight" data-trans="dapur bersama">Gemeinschaftsküche</span>. Neben Sara und Lena ist auch Max da – er wohnt im gleichen Wohnheim!
+
+<br><br>„Was kochen wir heute?", fragt Max. Sara schlägt vor: „<span class="highlight" data-trans="pasta dengan saus tomat">Spaghetti Bolognese</span>! Einfach und lecker."
+
+<br><br>Lena schneidet die <span class="highlight" data-trans="bawang bombay">Zwiebeln</span> – ihre Augen tränen. Alle lachen!
+
+<br><br>„Kannst du gut kochen?", fragt Sara. „Ein bisschen", antwortet Lena. „Zu Hause kocht <span class="highlight" data-trans="biasanya">meistens</span> meine Mutter. Aber ich lerne schnell!"
+
+<br><br>Nach dem Essen sitzen sie zusammen und <span class="highlight" data-trans="bercerita/ngobrol">erzählen</span> von ihren Hometowns, Hobbys und Träumen. Lena denkt: <em>„Ich glaube, ich werde hier gute <span class="highlight" data-trans="teman-teman">Freunde</span> finden."</em>`,
+    vocab: '💡 <strong>Wortschatz:</strong> die Küche = dapur · vorschlagen = menyarankan · schneiden = memotong · tränen = mengeluarkan air mata · der Traum = mimpi/impian'
+  },
+  // QUIZ 2
+  {
+    type: 'quiz',
+    quizIndex: 1
+  },
+  // SCENE 5
+  {
+    type: 'scene',
+    tag: 'Szene 5 · Wochenende',
+    title: 'Das Heidelberg-Festival',
+    location: '📍 Marktplatz Heidelberg',
+    emoji: '🎡',
+    bg: 'linear-gradient(135deg, #e0d4f0 0%, #c8b8e8 100%)',
+    text: `Am Wochenende gibt es ein großes <span class="highlight" data-trans="festival kota">Stadtfest</span> in Heidelberg. Max, Sara und Lena gehen zusammen zum Marktplatz.
+
+<br><br>Es gibt Musik, Tanz und viel Essen. Lena kauft eine <span class="highlight" data-trans="Bratwurst">Bratwurst</span> – zum ersten Mal! „Mmh, das schmeckt fantastisch!", ruft sie.
+
+<br><br>Max kauft für alle heiße <span class="highlight" data-trans="coklat panas">Schokolade</span>. Sara findet einen Stand mit <span class="highlight" data-trans="kerajinan tangan">Kunsthandwerk</span> und kauft ein kleines Buch als Andenken.
+
+<br><br>Abends sehen sie ein <span class="highlight" data-trans="pertunjukan kembang api">Feuerwerk</span> über dem Heidelberger Schloss. Es ist wunderschön.
+
+<br><br>„Das war der beste erste Tag meines Lebens in Heidelberg!", sagt Lena glücklich. Max und Sara lachen. „Willkommen in deinem neuen Zuhause, Lena!"`,
+    vocab: '💡 <strong>Wortschatz:</strong> das Stadtfest = festival kota · schmecken = terasa/enak · das Feuerwerk = kembang api · das Schloss = kastil · das Zuhause = rumah/tempat tinggal'
+  },
+  // QUIZ 3
+  {
+    type: 'quiz',
+    quizIndex: 2
+  }
+];
+
+// ══════════════════════════════════════════════
+//  QUIZ DATA
+// ══════════════════════════════════════════════
+
+const quizzes = [
+  // ══ QUIZ 1 – 7 Soal · Szenen 1 & 2 ══
+  {
+    title: 'Kuis 1 · Szenen 1 & 2',
+    questions: [
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Woher kommt Lena?',
+        context: 'Lena steht am Bahnhof in Heidelberg. Sie kommt aus München...',
+        options: ['Heidelberg', 'Berlin', 'München', 'Hamburg'],
+        answer: 2,
+        explain: 'Richtig! ✅ Im Text steht: "Sie kommt aus München."'
+      },
+      {
+        type: 'tf',
+        badge: 'Richtig / Falsch',
+        q: 'Max studiert Germanistik an der Universität Heidelberg.',
+        context: '„Ich studiere Informatik", sagt Max, „und du?" „Ich studiere Germanistik!", sagt Lena...',
+        answer: false,
+        explain: 'Richtig! ✅ Max studiert Informatik, nicht Germanistik. Germanistik studiert Lena.'
+      },
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Was hat Lena am Bahnhof dabei?',
+        context: 'Sie hat einen großen Koffer und einen Rucksack...',
+        options: ['Einen kleinen Koffer und eine Tasche', 'Einen großen Koffer und einen Rucksack', 'Nur einen Rucksack', 'Zwei Koffer'],
+        answer: 1,
+        explain: 'Richtig! ✅ "Sie hat einen großen Koffer und einen Rucksack."'
+      },
+      {
+        type: 'tf',
+        badge: 'Richtig / Falsch',
+        q: 'Lena und Max gehen zusammen in die Mensa.',
+        context: 'Max und Lena gehen zusammen zur Universität... „Wir können in die Mensa gehen."',
+        answer: true,
+        explain: 'Richtig! ✅ Sie gehen zusammen in die Mensa.'
+      },
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Was isst Max in der Mensa?',
+        context: 'In der Mensa gibt es Suppe, Nudeln und Salat. Lena nimmt die Suppe... Max isst Nudeln mit Tomatensauce.',
+        options: ['Suppe und Salat', 'Eine Bratwurst', 'Nudeln mit Tomatensauce', 'Nichts – er hat keinen Hunger'],
+        answer: 2,
+        explain: 'Richtig! ✅ "Max isst Nudeln mit Tomatensauce."'
+      },
+      {
+        type: 'match',
+        badge: 'Cocokkan Kosakata',
+        q: 'Cocokkan kata bahasa Jerman dengan artinya dalam bahasa Indonesia!',
+        pairs: [
+          { de: 'der Bahnhof', id: 'stasiun' },
+          { de: 'der Koffer', id: 'koper' },
+          { de: 'hungrig', id: 'lapar' },
+          { de: 'zeigen', id: 'menunjukkan' }
+        ]
+      },
+      {
+        type: 'mc',
+        badge: 'Grammatik · Artikel',
+        q: 'Wähle den richtigen unbestimmten Artikel: Lena sucht ___ Studentenwohnheim.',
+        context: 'Das Wohnheim = neutrum → unbestimmter Artikel im Akkusativ = "ein"',
+        options: ['eine', 'einen', 'ein', 'einer'],
+        answer: 2,
+        explain: 'Richtig! ✅ "Wohnheim" ist Neutrum → Akkusativ = ein Studentenwohnheim ✓'
+      }
+    ]
+  },
+
+  // ══ QUIZ 2 – 7 Soal · Szenen 3 & 4 ══
+  {
+    title: 'Kuis 2 · Szenen 3 & 4',
+    questions: [
+      {
+        type: 'tf',
+        badge: 'Richtig / Falsch',
+        q: 'Saras Zimmer ist Nummer 15 im Wohnheim.',
+        context: '„Ich bin Sara. Ich wohne in Zimmer 15. Willkommen im Wohnheim!"',
+        answer: true,
+        explain: 'Richtig! ✅ Im Text steht: "Ich wohne in Zimmer 15."'
+      },
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Was hängt Lena an die Wand in ihrem Zimmer?',
+        context: 'Lena packt ihre Sachen aus. Sie hängt ein Foto von ihrer Familie an die Wand.',
+        options: ['Ein Bild von Heidelberg', 'Ein Poster von einer Band', 'Ein Foto von ihrer Familie', 'Einen Kalender'],
+        answer: 2,
+        explain: 'Richtig! ✅ "Sie hängt ein Foto von ihrer Familie an die Wand."'
+      },
+      {
+        type: 'match',
+        badge: 'Cocokkan Kosakata',
+        q: 'Cocokkan kata bahasa Jerman dengan artinya dalam bahasa Indonesia!',
+        pairs: [
+          { de: 'die Küche', id: 'dapur' },
+          { de: 'gemütlich', id: 'nyaman' },
+          { de: 'der Schrank', id: 'lemari' },
+          { de: 'klopfen', id: 'mengetuk' }
+        ]
+      },
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Was kochen die drei Freunde zusammen?',
+        context: 'Sara schlägt vor: „Spaghetti Bolognese! Einfach und lecker."',
+        options: ['Suppe und Brot', 'Spaghetti Bolognese', 'Currywurst', 'Salat und Reis'],
+        answer: 1,
+        explain: 'Richtig! ✅ Sara schlägt Spaghetti Bolognese vor – einfach und lecker!'
+      },
+      {
+        type: 'tf',
+        badge: 'Richtig / Falsch',
+        q: 'Max wohnt NICHT im gleichen Wohnheim wie Lena und Sara.',
+        context: 'Neben Sara und Lena ist auch Max da – er wohnt im gleichen Wohnheim!',
+        answer: false,
+        explain: 'Richtig! ✅ Max wohnt tatsächlich im gleichen Wohnheim!'
+      },
+      {
+        type: 'mc',
+        badge: 'Grammatik · Modalverb',
+        q: 'Welche Form ist richtig? „Lena ___ nicht gut kochen."',
+        context: 'Modalverben: können → ich kann, du kannst, er/sie kann, wir können...',
+        options: ['kann', 'kannst', 'können', 'könnst'],
+        answer: 0,
+        explain: 'Richtig! ✅ Lena = 3. Person Singular → "kann" ✓'
+      },
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Warum weinen Lenas Augen beim Kochen?',
+        context: 'Lena schneidet die Zwiebeln – ihre Augen tränen. Alle lachen!',
+        options: ['Sie ist traurig und vermisst München', 'Sie schneidet Zwiebeln', 'Der Rauch ist zu stark', 'Das Licht ist zu hell'],
+        answer: 1,
+        explain: 'Richtig! ✅ Zwiebeln schneiden macht die Augen tränen – das kennen wir alle! 😄'
+      }
+    ]
+  },
+
+  // ══ QUIZ 3 – 6 Soal · Szene 5 · Final Quiz ══
+  {
+    title: 'Kuis 3 · Szene 5 · Grand Final',
+    questions: [
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Was macht Lena beim Stadtfest zum ersten Mal?',
+        context: 'Es gibt Musik, Tanz und viel Essen. Lena kauft eine Bratwurst – zum ersten Mal!',
+        options: ['Sie trinkt heiße Schokolade', 'Sie kauft eine Bratwurst', 'Sie tanzt auf der Straße', 'Sie kauft ein Buch'],
+        answer: 1,
+        explain: 'Richtig! ✅ "Lena kauft eine Bratwurst – zum ersten Mal!"'
+      },
+      {
+        type: 'tf',
+        badge: 'Richtig / Falsch',
+        q: 'Sara kauft am Festival einen Stand mit Kunsthandwerk.',
+        context: 'Sara findet einen Stand mit Kunsthandwerk und kauft ein kleines Buch als Andenken.',
+        answer: false,
+        explain: 'Richtig! ✅ Sara findet den Stand, aber sie kauft ein kleines Buch als Andenken, nicht den Stand selbst 😄'
+      },
+      {
+        type: 'mc',
+        badge: 'Grammatik · Akkusativ',
+        q: 'Wähle die richtige Akkusativ-Form: Max kauft für alle heiße ___.',
+        context: 'Akkusativ: maskulin = -en, feminin/neutrum/plural = wie Nominativ',
+        options: ['heißer Schokolade', 'heiße Schokolade', 'heißem Schokolade', 'heißes Schokolade'],
+        answer: 1,
+        explain: 'Richtig! ✅ "Schokolade" ist feminin → Akkusativ = heiße Schokolade ✓'
+      },
+      {
+        type: 'mc',
+        badge: 'Pilihan Ganda',
+        q: 'Was sehen Max, Sara und Lena am Abend beim Festival?',
+        context: 'Abends sehen sie ein Feuerwerk über dem Heidelberger Schloss.',
+        options: ['Ein Konzert im Park', 'Ein Fußballspiel', 'Ein Feuerwerk über dem Schloss', 'Einen Film im Freiluft-Kino'],
+        answer: 2,
+        explain: 'Richtig! ✅ "Abends sehen sie ein Feuerwerk über dem Heidelberger Schloss."'
+      },
+      {
+        type: 'match',
+        badge: 'Cocokkan Kosakata · Grand Final',
+        q: 'Cocokkan semua kata dari cerita dengan artinya!',
+        pairs: [
+          { de: 'das Feuerwerk', id: 'kembang api' },
+          { de: 'das Schloss', id: 'kastil' },
+          { de: 'schmecken', id: 'terasa enak' },
+          { de: 'das Stadtfest', id: 'festival kota' }
+        ]
+      },
+      {
+        type: 'mc',
+        badge: 'Grammatik · Superlativ',
+        q: 'Lena sagt: "Das war der ___ erste Tag meines Lebens!" Welches Wort fehlt?',
+        context: 'Superlativ von "gut" → besser → am besten / der/die/das beste',
+        options: ['guteste', 'gute', 'beste', 'bessere'],
+        answer: 2,
+        explain: 'Richtig! ✅ Superlativ mit bestimmtem Artikel: "der beste" Tag. Gut → besser → der beste ✓'
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+
+let currentStep = 0;   // index into story[]
+let currentQ    = 0;   // index into current quiz questions
+let correctCount = 0;
+let totalQ       = 0;
+let currentQuiz  = null;
+let matchSelected = null;  // { side, idx }
+let matchState    = [];    // array per pair: null|'correct'|'wrong'
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startStory() {
+  currentStep = 0;
+  correctCount = 0;
+  totalQ = 0;
+  showScreen('story');
+  renderStep();
+}
+
+function nextStep() {
+  currentStep++;
+  if (currentStep >= story.length) {
+    showResult();
+  } else {
+    renderStep();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  STORY RENDERER
+// ══════════════════════════════════════════════
+
+function renderStep() {
+  const step = story[currentStep];
+  // count total scenes for progress
+  const totalScenes = story.filter(s => s.type === 'scene').length;
+  const sceneSoFar  = story.slice(0, currentStep + 1).filter(s => s.type === 'scene').length;
+  const pct = Math.round((sceneSoFar / totalScenes) * 100);
+  document.getElementById('progBar').style.width = pct + '%';
+  document.getElementById('progLabel').textContent = `Szene ${sceneSoFar} / ${totalScenes}`;
+
+  if (step.type === 'scene') {
+    showScreen('story');
+    const isLast = currentStep === story.length - 1;
+    const nextLabel = (() => {
+      if (currentStep + 1 < story.length) {
+        return story[currentStep + 1].type === 'quiz' ? 'Zum Quiz →' : 'Nächste Szene →';
+      }
+      return 'Ergebnis →';
+    })();
+
+    document.getElementById('storyBody').innerHTML = `
+      <div class="scene-tag">📖 ${step.tag}</div>
+      <div class="story-illustration" style="background:${step.bg}">${step.emoji}</div>
+      <h2 class="story-title">${step.title}</h2>
+      <div class="story-location">${step.location}</div>
+      <div class="story-text">${step.text}
+        <div class="vocab-hint">${step.vocab}</div>
+      </div>
+      <div class="story-nav">
+        <button class="btn-nav" onclick="goHome()">← Home</button>
+        <button class="btn-nav primary" onclick="nextStep()">${nextLabel}</button>
+      </div>
+    `;
+  } else if (step.type === 'quiz') {
+    startQuiz(step.quizIndex);
+  }
+}
+
+function goHome() {
+  showScreen('home');
+}
+
+// ══════════════════════════════════════════════
+//  QUIZ ENGINE
+// ══════════════════════════════════════════════
+
+function startQuiz(qi) {
+  currentQuiz = quizzes[qi];
+  currentQ    = 0;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = currentQuiz.questions[currentQ];
+  document.getElementById('scorePill').textContent = `⭐ ${correctCount} / ${totalQ}`;
+
+  if (q.type === 'mc')    renderMC(q);
+  else if (q.type === 'tf')    renderTF(q);
+  else if (q.type === 'match') renderMatch(q);
+}
+
+function afterAnswer(isCorrect) {
+  totalQ++;
+  if (isCorrect) correctCount++;
+  document.getElementById('scorePill').textContent = `⭐ ${correctCount} / ${totalQ}`;
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= currentQuiz.questions.length) {
+    nextStep(); // back to story flow
+  } else {
+    renderQuestion();
+  }
+}
+
+// ─── Multiple Choice ───
+function renderMC(q) {
+  const letters = ['A','B','C','D'];
+  document.getElementById('quizBody').innerHTML = `
+    <div class="quiz-type-badge">🎯 ${q.badge}</div>
+    <div class="quiz-question">${q.q}</div>
+    ${q.context ? `<div class="quiz-context">"${q.context}"</div>` : ''}
+    <div class="options-grid">
+      ${q.options.map((o,i) => `
+        <button class="option-btn" onclick="checkMC(this,${i},${q.answer},'${escQ(q.explain)}')">
+          <div class="opt-letter">${letters[i]}</div>
+          <span>${o}</span>
+        </button>`).join('')}
+    </div>
+    <div class="feedback-box" id="fb"></div>
+    <div class="quiz-nav">
+      <button class="btn-nav primary" id="qnext" onclick="nextQuestion()" style="display:none">Weiter →</button>
+    </div>
+  `;
+}
+
+function checkMC(btn, selected, correct, explain) {
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const isCorrect = selected === correct;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[correct].classList.add('correct');
+  showFeedback(isCorrect, explain);
+  afterAnswer(isCorrect);
+  document.getElementById('qnext').style.display = 'inline-flex';
+}
+
+// ─── True / False ───
+function renderTF(q) {
+  document.getElementById('quizBody').innerHTML = `
+    <div class="quiz-type-badge">✅❌ ${q.badge}</div>
+    <div class="quiz-question">${q.q}</div>
+    ${q.context ? `<div class="quiz-context">"${q.context}"</div>` : ''}
+    <div class="tf-grid">
+      <button class="tf-btn" onclick="checkTF(this,true,${q.answer},'${escQ(q.explain)}')">
+        <div class="tf-icon">✅</div> Richtig
+      </button>
+      <button class="tf-btn" onclick="checkTF(this,false,${q.answer},'${escQ(q.explain)}')">
+        <div class="tf-icon">❌</div> Falsch
+      </button>
+    </div>
+    <div class="feedback-box" id="fb"></div>
+    <div class="quiz-nav">
+      <button class="btn-nav primary" id="qnext" onclick="nextQuestion()" style="display:none">Weiter →</button>
+    </div>
+  `;
+}
+
+function checkTF(btn, selected, correct, explain) {
+  document.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+  const isCorrect = selected === correct;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  showFeedback(isCorrect, explain);
+  afterAnswer(isCorrect);
+  document.getElementById('qnext').style.display = 'inline-flex';
+}
+
+// ─── Matching ───
+function renderMatch(q) {
+  matchSelected = null;
+  matchState = q.pairs.map(() => null);
+  const shuffled = [...q.pairs.map((p,i)=>i)].sort(()=>Math.random()-0.5);
+
+  document.getElementById('quizBody').innerHTML = `
+    <div class="quiz-type-badge">🔗 ${q.badge}</div>
+    <div class="quiz-question">${q.q}</div>
+    <div class="match-grid">
+      <div class="match-col">
+        <div class="match-col-title">🇩🇪 Deutsch</div>
+        ${q.pairs.map((p,i)=>`
+          <div class="match-item" id="de-${i}" onclick="selectMatch('de',${i})">${p.de}</div>
+        `).join('')}
+      </div>
+      <div class="match-col">
+        <div class="match-col-title">🇮🇩 Indonesia</div>
+        ${shuffled.map((origIdx,i)=>`
+          <div class="match-item" id="id-${origIdx}" onclick="selectMatch('id',${origIdx})">${q.pairs[origIdx].id}</div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="feedback-box" id="fb"></div>
+    <div class="quiz-nav">
+      <button class="btn-nav primary" id="qnext" onclick="nextQuestion()" style="display:none">Weiter →</button>
+    </div>
+  `;
+}
+
+function selectMatch(side, idx) {
+  const q = currentQuiz.questions[currentQ];
+  if (matchState[idx] === 'correct') return;
+
+  if (!matchSelected) {
+    matchSelected = { side, idx };
+    document.getElementById(`${side}-${idx}`).classList.add('selected');
+  } else {
+    if (matchSelected.side === side) {
+      document.getElementById(`${matchSelected.side}-${matchSelected.idx}`).classList.remove('selected');
+      matchSelected = { side, idx };
+      document.getElementById(`${side}-${idx}`).classList.add('selected');
+      return;
+    }
+    // pair attempt
+    const deIdx = side === 'de' ? idx : matchSelected.idx;
+    const idIdx = side === 'id' ? idx : matchSelected.idx;
+    const isMatch = deIdx === idIdx;
+
+    document.getElementById(`de-${deIdx}`).classList.remove('selected');
+    document.getElementById(`id-${idIdx}`).classList.remove('selected');
+
+    if (isMatch) {
+      document.getElementById(`de-${deIdx}`).classList.add('matched-correct');
+      document.getElementById(`id-${idIdx}`).classList.add('matched-correct');
+      matchState[deIdx] = 'correct';
+    } else {
+      document.getElementById(`de-${deIdx}`).classList.add('matched-wrong');
+      document.getElementById(`id-${idIdx}`).classList.add('matched-wrong');
+      setTimeout(() => {
+        document.getElementById(`de-${deIdx}`).classList.remove('matched-wrong');
+        document.getElementById(`id-${idIdx}`).classList.remove('matched-wrong');
+      }, 700);
+    }
+
+    matchSelected = null;
+
+    const correct = matchState.filter(s => s === 'correct').length;
+    afterAnswer(isMatch);
+
+    if (correct === q.pairs.length) {
+      showFeedback(true, `Sehr gut! ✅ Alle ${q.pairs.length} Paare richtig zugeordnet!`);
+      document.getElementById('qnext').style.display = 'inline-flex';
+    }
+  }
+}
+
+// ─── Feedback ───
+function showFeedback(isCorrect, text) {
+  const fb = document.getElementById('fb');
+  fb.className = `feedback-box show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  fb.innerHTML = `<span class="fb-icon">${isCorrect ? '🎉' : '💡'}</span><span>${text}</span>`;
+}
+
+function escQ(s) { return s.replace(/'/g,"&#39;").replace(/"/g,'&quot;'); }
+
+// ══════════════════════════════════════════════
+//  RESULT
+// ══════════════════════════════════════════════
+
+function showResult() {
+  showScreen('result');
+  const pct = totalQ > 0 ? Math.round((correctCount / totalQ) * 100) : 0;
+
+  let grade, gradeItalic, msg;
+  if (pct >= 80) {
+    grade = 'Sehr'; gradeItalic = 'gut!';
+    msg  = 'Ausgezeichnet! Du hast die Geschichte sehr gut verstanden und dein Deutsch ist fantastisch. Mach weiter so! 🌟';
+    confetti();
+  } else if (pct >= 60) {
+    grade = 'Gut'; gradeItalic = 'gemacht!';
+    msg  = 'Schön! Du hast die meisten Fragen richtig beantwortet. Mit ein bisschen mehr Übung wirst du noch besser! 💪';
+  } else {
+    grade = 'Versuche es'; gradeItalic = 'nochmal!';
+    msg  = 'Kein Problem! Lies die Geschichte noch einmal durch und versuche es wieder. Übung macht den Meister! 📚';
+  }
+
+  document.getElementById('resultInner').innerHTML = `
+    <div class="result-circle" style="--pct:${pct}%">
+      <div class="result-score-num">${correctCount}</div>
+      <div class="result-score-den">von ${totalQ}</div>
+    </div>
+    <div class="result-grade">${grade} <span class="italic">${gradeItalic}</span></div>
+    <p class="result-msg">${msg}</p>
+    <div class="result-breakdown">
+      <div class="breakdown-title">Ergebnis-Übersicht</div>
+      <div class="breakdown-row">
+        <span class="breakdown-label">Richtige Antworten</span>
+        <span class="breakdown-val good">✓ ${correctCount}</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-label">Falsche Antworten</span>
+        <span class="breakdown-val bad">✗ ${totalQ - correctCount}</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-label">Gesamtpunktzahl</span>
+        <span class="breakdown-val">${pct}%</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="breakdown-label">Gelesene Szenen</span>
+        <span class="breakdown-val">5 / 5</span>
+      </div>
+    </div>
+    <div class="result-btns">
+      <button class="btn-result primary" onclick="startStory()">🔄 Nochmal spielen</button>
+      <button class="btn-result secondary" onclick="goHome()">🏠 Home</button>
+    </div>
+  `;
+}
+
+function confetti() {
+  const colors = ['#7a9e7e','#d4a853','#c97b7b','#6b9ab8','#9dc0d8','#f0c878'];
+  const wrap = document.getElementById('confettiWrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetto';
+    c.style.cssText = `
+      left:${Math.random()*100}%;
+      width:${6+Math.random()*10}px;
+      height:${6+Math.random()*10}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${1.5+Math.random()*2}s;
+      animation-delay:${Math.random()*1}s;
+    `;
+    wrap.appendChild(c);
+  }
+  setTimeout(() => wrap.innerHTML = '', 4000);
+}
+</script>
+</body>
+</html>
